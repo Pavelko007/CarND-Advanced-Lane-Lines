@@ -170,6 +170,8 @@ def process_image(img, mtx, dist, return_debug_images = False):
     cv2.fillPoly(road_bkg,[left_lane], color=[255,255,255])
     cv2.fillPoly(road_bkg,[right_lane], color=[255,255,255])          
     
+    road_perspective = np.copy(road)
+
     road_warped = cv2.warpPerspective(road,Minv,img_size,flags=cv2.INTER_LINEAR)
     road_warped_bkg = cv2.warpPerspective(road_bkg, Minv, img_size, flags=cv2.INTER_LINEAR)
     
@@ -192,6 +194,6 @@ def process_image(img, mtx, dist, return_debug_images = False):
     cv2.putText(result, 'Vehicle is ' + str(abs(round(center_diff,3))) + 'm ' + side_pos + ' of center', (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
     
     if return_debug_images:
-        return result, preprocess_image, warped, detected_windows
+        return result, preprocess_image, warped, detected_windows, road_perspective
     else:
         return result
