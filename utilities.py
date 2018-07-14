@@ -80,7 +80,7 @@ def window_mask(width, height, img_ref, center,level):
     
     return output
 
-def process_image(img, mtx, dist):
+def process_image(img, mtx, dist, return_debug_images = False):
      
     img = cv2.undistort(img, mtx,dist,None, mtx)
     
@@ -167,8 +167,7 @@ def process_image(img, mtx, dist):
     cv2.fillPoly(road, [right_lane], color = [0,0,255])
     cv2.fillPoly(road, [inner_lane], color= [0,255,0])
     cv2.fillPoly(road_bkg,[left_lane], color=[255,255,255])
-    cv2.fillPoly(road_bkg,[right_lane], color=[255,255,255])
-          
+    cv2.fillPoly(road_bkg,[right_lane], color=[255,255,255])          
     
     road_warped = cv2.warpPerspective(road,Minv,img_size,flags=cv2.INTER_LINEAR)
     road_warped_bkg = cv2.warpPerspective(road_bkg, Minv, img_size, flags=cv2.INTER_LINEAR)
@@ -180,8 +179,7 @@ def process_image(img, mtx, dist):
     xm_per_pix = curve_centers.xm_per_pix
     
     curve_fit_cr = np.polyfit(np.array(res_yvals,np.float32)*ym_per_pix, np.array(leftx, np.float32)*xm_per_pix,2)
-    curverad = ((1+(2*curve_fit_cr[0]*yvals[-1]*ym_per_pix + curve_fit_cr[1])**2)**1.5)/np.absolute(2*curve_fit_cr[0])
-    
+    curverad = ((1+(2*curve_fit_cr[0]*yvals[-1]*ym_per_pix + curve_fit_cr[1])**2)**1.5)/np.absolute(2*curve_fit_cr[0])    
     
     camera_center = (left_fitx[-1] + right_fitx[-1])/2
     center_diff = (camera_center - warped.shape[1]/2)*xm_per_pix
@@ -191,5 +189,8 @@ def process_image(img, mtx, dist):
         
     cv2.putText(result, 'Radius of Curvature = ' +str(round(curverad,3)) + '(m)', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2)
     cv2.putText(result, 'Vehicle is ' + str(abs(round(center_diff,3))) + 'm ' + side_pos + ' of center', (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
-        
-    return result
+    
+    if return_debug_images:
+        return result, preprocess_image
+    else:
+        return result
