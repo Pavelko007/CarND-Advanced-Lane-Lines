@@ -133,12 +133,13 @@ def process_image(img, mtx, dist, return_debug_images = False):
         
         l_points[(l_points == 255) | ((l_mask == 1))] = 255
         r_points[(r_points == 255) | ((r_mask == 1))] = 255
-        
-    template = np.array(r_points+l_points, np.uint8)
-    zero_channel = np.zeros_like(template)
-    template = np.array(cv2.merge((zero_channel, template, zero_channel)), np.uint8)
-    warpage = np.array(cv2.merge((warped, warped, warped)), np.uint8)
-    result = cv2.addWeighted(warpage, 1, template, 0.5, 0.0)    
+    
+    #draw the results    
+    template = np.array(r_points+l_points, np.uint8) #add both left and right window pixels together
+    zero_channel = np.zeros_like(template)  # create a zero color channel
+    template = np.array(cv2.merge((zero_channel, template, zero_channel)), np.uint8) #make window pixels green
+    warpage = np.array(cv2.merge((warped, warped, warped)), np.uint8) # making the original road pixels 3 color channels
+    detected_windows = cv2.addWeighted(warpage, 1, template, 0.5, 0.0)   # overlay the original road image with window results  
     
     yvals = range(0, warped.shape[0])
     
@@ -191,6 +192,6 @@ def process_image(img, mtx, dist, return_debug_images = False):
     cv2.putText(result, 'Vehicle is ' + str(abs(round(center_diff,3))) + 'm ' + side_pos + ' of center', (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
     
     if return_debug_images:
-        return result, preprocess_image, warped
+        return result, preprocess_image, warped, detected_windows
     else:
         return result
