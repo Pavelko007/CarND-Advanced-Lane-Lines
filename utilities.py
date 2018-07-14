@@ -76,7 +76,7 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
 
 def window_mask(width, height, img_ref, center,level):
     output = np.zeros_like(img_ref)
-    output[int(img_ref.shape[0]-(level+1)*height):int(img_ref.shape[0]-level*height),max(0,int(center-width/2)):min(int(center+width/2),img_ref.shape[1])] = 1
+    output[int(img_ref.shape[0]-(level+1)*height):int(img_ref.shape[0]-level*height),max(0,int(center-width)):min(int(center+width),img_ref.shape[1])] = 1
     
     return output
 
