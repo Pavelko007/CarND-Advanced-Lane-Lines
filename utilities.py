@@ -94,7 +94,7 @@ def process_image(img, mtx, dist, return_debug_images = False):
     bot_width = .76
     mid_width = .08
     height_pct = .62
-    bottom_trim = .935
+    bottom_trim = .935 #percent form top to bottom to avoid car hood
       
     src = np.float32([\
         [img.shape[1]*(.5-mid_width/2),img.shape[0]*height_pct],\
@@ -191,6 +191,6 @@ def process_image(img, mtx, dist, return_debug_images = False):
     cv2.putText(result, 'Vehicle is ' + str(abs(round(center_diff,3))) + 'm ' + side_pos + ' of center', (50,100), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
     
     if return_debug_images:
-        return result, preprocess_image
+        return result, preprocess_image, warped
     else:
         return result
