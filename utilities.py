@@ -90,16 +90,14 @@ def preprocess(img, mtx, dist):
     preprocess_image[((gradx==1) & (grady == 1) | (c_binary == 1))] = 255
     return preprocess_image
 
-def process_image(img, mtx, dist, return_debug_images = False):
-      
+def calc_perspective(img, mtx, dist, img_size):
     preprocess_image = preprocess(img, mtx, dist)
-
-    img_size = (img.shape[1], img.shape[0])
+    
     bot_width = .76
     mid_width = .08
     height_pct = .62
     bottom_trim = .935 #percent form top to bottom to avoid car hood
-      
+        
     src = np.float32([\
         [img.shape[1]*(.5-mid_width/2),img.shape[0]*height_pct],\
         [img.shape[1]*(.5+mid_width/2),img.shape[0]*height_pct],\
@@ -107,12 +105,20 @@ def process_image(img, mtx, dist, return_debug_images = False):
         [img.shape[1]*(.5-bot_width/2),img.shape[0]*bottom_trim]])
     
     offset = img_size[0]*.25
+
     dst = np.float32([[offset,0], [img_size[0]-offset,0],\
                       [img_size[0]-offset,img_size[1]], [offset,img_size[1]]])
+
     #perform transformation
     M = cv2.getPerspectiveTransform(src,dst)
     Minv = cv2.getPerspectiveTransform(dst,src)
     warped = cv2.warpPerspective(preprocess_image,M,img_size,flags=cv2.INTER_LINEAR)
+    return warped, M, Minv, preprocess_image
+
+def process_image(img, mtx, dist, return_debug_images = False):
+    img_size = (img.shape[1], img.shape[0])
+
+    warped, M, Minv, preprocess_image = calc_perspective(img, mtx, dist, img_size)    
     
     window_width = 25 
     window_height = 80
