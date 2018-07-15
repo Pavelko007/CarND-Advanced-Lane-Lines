@@ -79,6 +79,30 @@ def window_mask(width, height, img_ref, center,level):
     output[int(img_ref.shape[0]-(level+1)*height):int(img_ref.shape[0]-level*height),max(0,int(center-width)):min(int(center+width),img_ref.shape[1])] = 1
     
     return output
+    
+def find_edges(image, mask_half=False):
+    hls = cv2.cvtColor(image.astype(np.uint8), cv2.COLOR_RGB2HLS)
+    s = hls[:,:,2]
+    gray = (0.5*image[:,:,0] + 0.4*image[:,:,1] + 0.1*image[:,:,2]).astype(np.uint8)
+
+    _, gray_binary = cv2.threshold(gray.astype('uint8'), 130, 255, cv2.THRESH_BINARY)
+
+    # switch to gray image for laplacian if 's' doesn't give enough details
+    total_px = image.shape[0]*image.shape[1]
+    laplacian = cv2.Laplacian(gray, cv2.CV_32F, ksize=21)
+    mask_one = (laplacian < 0.15*np.min(laplacian)).astype(np.uint8)
+    if cv2.countNonZero(mask_one)/total_px < 0.01:
+        laplacian = cv2.Laplacian(gray, cv2.CV_32F, ksize=21)
+        mask_one = (laplacian < 0.075*np.min(laplacian)).astype(np.uint8)
+
+    _, s_binary = cv2.threshold(s.astype('uint8'), 150, 255, cv2.THRESH_BINARY)
+    mask_two = s_binary
+
+
+    combined_binary = np.clip(cv2.bitwise_and(gray_binary,
+                        cv2.bitwise_or(mask_one, mask_two)), 0, 1).astype('uint8')
+
+    return combined_binary
 
 def process_image(img, mtx, dist, return_debug_images = False):
      
