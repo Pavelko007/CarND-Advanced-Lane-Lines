@@ -175,7 +175,7 @@ def process_image(img, mtx, dist, return_debug_images = False):
     road_warped = cv2.warpPerspective(road,Minv,img_size,flags=cv2.INTER_LINEAR)
     road_warped_bkg = cv2.warpPerspective(road_bkg, Minv, img_size, flags=cv2.INTER_LINEAR)
     
-    base = cv2.addWeighted(img, 1.0, road_warped_bkg, -1.0, 0.0)
+    base = cv2.addWeighted(img, 1.0, road_warped_bkg, -0.5, 0.0 )
     result = cv2.addWeighted(base, 1.0, road_warped, 0.7, 0.0)
     
     ym_per_pix = curve_centers.ym_per_pix
