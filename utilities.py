@@ -80,16 +80,20 @@ def window_mask(width, height, img_ref, center,level):
     
     return output
 
-def process_image(img, mtx, dist, return_debug_images = False):
-     
+def preprocess(img, mtx, dist):
     img = cv2.undistort(img, mtx,dist,None, mtx)
-    
+
     preprocess_image = np.zeros_like(img[:,:,0])
     gradx = abs_sobel_thresh(img, orient='x', thresh = (12,255))
     grady = abs_sobel_thresh(img, orient='y', thresh = (25,255))
     c_binary = color_threshold(img, sthresh = (100, 255), vthresh = (50,255))
     preprocess_image[((gradx==1) & (grady == 1) | (c_binary == 1))] = 255
-    
+    return preprocess_image
+
+def process_image(img, mtx, dist, return_debug_images = False):
+      
+    preprocess_image = preprocess(img, mtx, dist)
+
     img_size = (img.shape[1], img.shape[0])
     bot_width = .76
     mid_width = .08
